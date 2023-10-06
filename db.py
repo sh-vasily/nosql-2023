@@ -9,7 +9,7 @@ async def get_db_collection() -> AsyncIOMotorCollection:
     db_name = "api-db"
     collection = "students"
 
-    return db_client[db_name][collection]
+    return db_client.get_database(db_name).get_collection(collection)
 
 
 async def connect_and_init_db():
