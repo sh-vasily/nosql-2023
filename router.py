@@ -2,7 +2,7 @@ from typing import Any
 
 from bson import ObjectId
 from fastapi import APIRouter, status, Depends
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
+from motor.motor_asyncio import AsyncIOMotorCollection
 from starlette.responses import Response
 
 from db import get_db_collection
