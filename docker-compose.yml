@@ -4,10 +4,9 @@ services:
     ports:
       - 8000:8000
     environment:
-      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_URI=mongodb://mongo_db:27017
 
-  database:
+  mongo_db:
     image: mongo
-    container_name: mongo
     volumes:
       - ./data:/data/db
