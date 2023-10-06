@@ -3,10 +3,11 @@ services:
     build: .
     ports:
       - 8000:8000
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
 
   database:
     image: mongo
-    ports:
-      - '27018:27017'
+    container_name: mongo
     volumes:
       - ./data:/data/db

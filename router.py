@@ -1,8 +1,11 @@
 from typing import Any
 
-from fastapi import APIRouter, status
+from bson import ObjectId
+from fastapi import APIRouter, status, Depends
+from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.responses import Response
 
+from db import get_db_collection
 from student import Student, UpdateStudentModel
 
 router = APIRouter()
@@ -10,41 +13,53 @@ router = APIRouter()
 students: list[Student] = []
 
 
+def map_student(student: Any) -> Student:
+    return Student(id=str(student['_id']), name=student['name'], age=student['age'])
+
+
+def get_filter(id: str) -> dict:
+    return {'_id': ObjectId(id)}
+
+
 @router.get("/")
-def get_all_student() -> list[Student]:
-    return students
+async def get_all_student(db_collection: AsyncIOMotorClient = Depends(get_db_collection)) -> list[Student]:
+    db_students = []
+    async for student in db_collection.find():
+        db_students.append(map_student(student))
+    return db_students
 
 
 @router.get("/{student_id}", response_model=Student)
-def get_by_id(student_id: int) -> Any:
-    student = next((student for student in students if student.id == student_id), None)
-    if student is None:
+async def get_by_id(student_id: str, db_collection: AsyncIOMotorClient = Depends(get_db_collection)) -> Any:
+    if not ObjectId.is_valid(student_id):
+        return Response(status_code=status.HTTP_400_BAD_REQUEST)
+    db_student = await db_collection.find_one(get_filter(student_id))
+    if db_student is None:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
-    return student
+    return map_student(db_student)
 
 
 @router.post("/")
-def add_student(student: Student) -> Student:
-    students.append(student)
-    return student
+async def add_student(student: UpdateStudentModel, db_collection: AsyncIOMotorClient = Depends(get_db_collection)) -> str:
+    insert_result = await db_collection.insert_one(dict(student))
+    return str(insert_result.inserted_id)
 
 
 @router.delete("/{student_id}")
-def remove_student(student_id: int) -> Response:
-    student = next((student for student in students if student.id == student_id), None)
-    if student is None:
+async def remove_student(student_id: str, db_collection: AsyncIOMotorClient = Depends(get_db_collection)) -> Response:
+    if not ObjectId.is_valid(student_id):
+        return Response(status_code=status.HTTP_400_BAD_REQUEST)
+    db_student = await db_collection.find_one_and_delete(get_filter(student_id))
+    if db_student is None:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
-    students.remove(student)
     return Response()
 
 
 @router.put("/{student_id}", response_model=Student)
-def update_student(student_id: int, student_model: UpdateStudentModel) -> Any:
-    student = next((student for student in students if student.id == student_id), None)
+async def update_student(student_id: str, student_model: UpdateStudentModel, db_collection: AsyncIOMotorClient = Depends(get_db_collection)) -> Any:
+    if not ObjectId.is_valid(student_id):
+        return Response(status_code=status.HTTP_400_BAD_REQUEST)
+    student = await db_collection.find_one_and_replace(get_filter(student_id), dict(student_model))
     if student is None:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
-
-    student.name = student_model.name
-    student.age = student_model.age
-
-    return student
+    return map_student(student)
