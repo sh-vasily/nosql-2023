@@ -1,11 +1,11 @@
 import os
 
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
 db_client: AsyncIOMotorClient = None
 
 
-async def get_db_collection() -> AsyncIOMotorClient:
+async def get_db_collection() -> AsyncIOMotorCollection:
     db_name = "api-db"
     collection = "students"
 
