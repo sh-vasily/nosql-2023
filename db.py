@@ -12,7 +12,7 @@ async def get_db_collection() -> AsyncIOMotorCollection:
     return db_client.get_database(db_name).get_collection(collection)
 
 
-async def connect_and_init_db():
+async def connect_and_init_mongo():
     global db_client
     mongo_uri = os.getenv('MONGO_URI')
     try:
@@ -23,7 +23,7 @@ async def connect_and_init_db():
         print(f'Cant connect to mongo: {ex}')
 
 
-async def close_db_connect():
+def close_mongo_connect():
     global db_client
     if db_client is None:
         return
