@@ -24,22 +24,16 @@ class Repository:
 
     async def get_by_id(self, student_id: str) -> Student | None:
         db_student = await self._db_collection.find_one(get_filter(student_id))
-        if db_student is None:
-            return db_student
         return map_student(db_student)
 
     async def update(self, student_id: str, student: UpdateStudentModel) -> Student | None:
         db_student = await self._db_collection.find_one_and_replace(get_filter(student_id), dict(student))
-        if db_student is None:
-            return db_student
         return map_student(db_student)
 
     async def delete(self, student_id: str) -> Student | None:
         db_student = await self._db_collection.find_one_and_delete(get_filter(student_id))
-        if db_student is None:
-            return db_student
         return map_student(db_student)
 
-    @classmethod
-    def get_instance(cls, db_collection: AsyncIOMotorCollection = Depends(get_db_collection)):
+    @staticmethod
+    def get_instance(db_collection: AsyncIOMotorCollection = Depends(get_db_collection)):
         return Repository(db_collection)
