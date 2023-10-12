@@ -14,8 +14,8 @@ class SearchStudentRepository:
     async def create(self, student_id: str, student: UpdateStudentModel):
         await self._elasticsearch_client.create(index='students', id=student_id, document=dict(student))
 
-    async def update(self, student: Student):
-        pass
+    async def update(self, student_id: str, student: UpdateStudentModel):
+        await self._elasticsearch_client.update(index='students', id=student_id, doc=dict(student))
 
     async def delete(self, student_id: str):
         await self._elasticsearch_client.delete(index='students', id=student_id)

@@ -57,10 +57,12 @@ async def remove_student(student_id: str,
 @router.put("/{student_id}", response_model=Student)
 async def update_student(student_id: str,
                          student_model: UpdateStudentModel,
-                         repository: Repository = Depends(Repository.get_instance)) -> Any:
+                         repository: Repository = Depends(Repository.get_instance),
+                         search_repository: SearchStudentRepository = Depends(SearchStudentRepository.get_instance)) -> Any:
     if not ObjectId.is_valid(student_id):
         return Response(status_code=status.HTTP_400_BAD_REQUEST)
     student = await repository.update(student_id, student_model)
     if student is None:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
+    await search_repository.update(student_id, student_model)
     return student
