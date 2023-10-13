@@ -6,6 +6,9 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo_db:27017
       - ELASTICSEARCH_URI=http://elasticsearch_db:9200
+    depends_on:
+      - mongo_db
+      - elasticsearch_db
 
   mongo_db:
     image: mongo:7.0.2
