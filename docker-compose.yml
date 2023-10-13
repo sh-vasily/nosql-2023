@@ -17,6 +17,13 @@ services:
 
   elasticsearch_db:
     image: elasticsearch:8.10.2
+    healthcheck:
+      test: curl -s http://elasticsearch_db:9200 >/dev/null || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 10
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
