@@ -5,8 +5,15 @@ services:
       - 8000:8000
     environment:
       - MONGO_URI=mongodb://mongo_db:27017
+      - ELASTICSEARCH_URI=http://elasticsearch_db:9200
 
   mongo_db:
-    image: mongo
+    image: mongo:7.0.2
     volumes:
-      - ./data:/data/db
+      - ./data/mongo:/data/db
+
+  elasticsearch_db:
+    image: elasticsearch:8.4.3
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
