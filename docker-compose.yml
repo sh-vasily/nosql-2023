@@ -13,7 +13,7 @@ services:
       - ./data/mongo:/data/db
 
   elasticsearch_db:
-    image: elasticsearch:8.4.3
+    image: elasticsearch:8.10.2
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node

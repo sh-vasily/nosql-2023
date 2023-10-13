@@ -11,11 +11,11 @@ def get_elasticsearch_client() -> AsyncElasticsearch:
 
 async def connect_and_init_elasticsearch():
     global elasticsearch_client
-    mongo_uri = os.getenv('ELASTICSEARCH_URI')
+    elasticsearch_uri = os.getenv('ELASTICSEARCH_URI')
     try:
-        elasticsearch_client = AsyncElasticsearch(mongo_uri)
+        elasticsearch_client = AsyncElasticsearch(elasticsearch_uri)
         await elasticsearch_client.info()
-        print(f'Connected to elasticsearch with uri {mongo_uri}')
+        print(f'Connected to elasticsearch with uri {elasticsearch_uri}')
     except Exception as ex:
         print(f'Cant connect to elasticsearch: {ex}')
 
