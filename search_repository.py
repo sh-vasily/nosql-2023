@@ -33,7 +33,10 @@ class SearchStudentRepository:
             }
         }
         response = await self._elasticsearch_client.search(index=self._elasticsearch_index, query=query, filter_path=['hits.hits._id', 'hits.hits._source'])
-        students = list(map(lambda student: Student(id=student['_id'], name=student['_source']['name'], age=student['_source']['age']), response.body['hits']['hits']))
+        if 'hits' not in response.body:
+            return []
+        result = response.body['hits']['hits']
+        students = list(map(lambda student: Student(id=student['_id'], name=student['_source']['name'], age=student['_source']['age']), result))
         return students
 
     @staticmethod
