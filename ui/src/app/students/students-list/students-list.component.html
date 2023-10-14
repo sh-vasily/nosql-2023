@@ -1,0 +1,50 @@
+<h1>Список студентов</h1>
+<input class="form-control" type="text" [(ngModel)]="searchText" name="search" autocomplete="off" placeholder="&#61442;  Введите имя студента">
+<input type="button" value="Добавить" class="btn btn-default" (click)="addStudent()" />
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <td>Имя</td>
+      <td>Возраст</td>
+      <td></td>
+      <td></td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let student of students">
+      <ng-template [ngTemplateOutlet]="loadTemplate(student)"
+                   [ngTemplateOutletContext]="{ $implicit: student}">
+      </ng-template>
+    </tr>
+  </tbody>
+</table>
+<div>{{statusMessage}}</div>
+
+
+<ng-template #readOnlyTemplate let-student>
+  <td>{{student.name}}</td>
+  <td>{{student.age}}</td>
+  <td>
+    <input type="button" value="Изменить" class="btn btn-default" (click)="editStudent(student)" />
+  </td>
+  <td>
+    <input type="button" value="Удалить" (click)="deleteStudent(student)" class="btn btn-danger" />
+  </td>
+</ng-template>
+
+<ng-template #editTemplate>
+  <ng-container *ngIf="editedStudent">
+    <td>
+      <input type="text" [(ngModel)]="editedStudent.name" class="form-control" />
+    </td>
+    <td>
+      <input type="number" [(ngModel)]="editedStudent.age" class="form-control" />
+    </td>
+    <td>
+      <input type="button" value="Сохранить" (click)="saveStudent()" class="btn btn-success" />
+    </td>
+    <td>
+      <input type="button" value="Отмена" (click)="cancel()" class="btn btn-warning" />
+    </td>
+  </ng-container>
+</ng-template>
