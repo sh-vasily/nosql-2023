@@ -7,8 +7,10 @@ services:
       - MONGO_URI=mongodb://mongo_db:27017
       - ELASTICSEARCH_URI=http://elasticsearch_db:9200
     depends_on:
-      - mongo_db
-      - elasticsearch_db
+      elasticsearch_db:
+        condition: service_healthy
+      mongo_db:
+        condition: service_started
 
   mongo_db:
     image: mongo:7.0.2
@@ -17,6 +19,12 @@ services:
 
   elasticsearch_db:
     image: elasticsearch:8.10.2
+    healthcheck:
+      interval: 5s
+      retries: 80
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_db:9200
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
