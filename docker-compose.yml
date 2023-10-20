@@ -6,6 +6,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo_db:27017
       - ELASTICSEARCH_URI=http://elasticsearch_db:9200
+      - MEMCACHED_URI=memcached:11211
     depends_on:
       elasticsearch_db:
         condition: service_healthy
@@ -28,3 +29,6 @@ services:
       - discovery.type=single-node
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
+
+  memcached:
+    image: memcached
