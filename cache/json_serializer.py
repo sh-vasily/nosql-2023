@@ -1,7 +1,5 @@
 import json
 
-from student import Student
-
 
 class JsonSerializer(object):
     def serialize(self, key, value):
