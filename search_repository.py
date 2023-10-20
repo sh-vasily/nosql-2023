@@ -3,7 +3,7 @@ import os
 from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 
-from elasticsearch_implementation import get_elasticsearch_client
+from elasticsearch_utils import get_elasticsearch_client
 from student import Student, UpdateStudentModel
 
 
