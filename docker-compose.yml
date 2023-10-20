@@ -32,15 +32,9 @@ services:
 
   memcached_node_01:
     image: memcached
-    ports:
-      - 11212:11211
 
   memcached_node_02:
     image: memcached
-    ports:
-      - 11213:11211
 
   memcached_node_03:
     image: memcached
-    ports:
-      - 11214:11211
