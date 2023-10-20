@@ -8,6 +8,6 @@ load_dotenv()
 
 app = FastAPI()
 
-app.include_router(router, tags=["Student"], prefix="/students")
+app.include_router(router, tags=["Student"], prefix="/api/students")
 app.add_event_handler("startup", startup)
 app.add_event_handler("shutdown", shutdown)
