@@ -40,7 +40,7 @@ async def get_by_id(student_id: str,
     if student is None:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-    memcached_client.add(student_id, student)
+    memcached_client.add(student_id, student, expire=60)
 
     return student
 
