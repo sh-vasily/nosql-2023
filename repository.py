@@ -23,6 +23,7 @@ class Repository:
         return db_students
 
     async def get_by_id(self, student_id: str) -> Student | None:
+        print("Get student from mongo")
         db_student = await self._db_collection.find_one(get_filter(student_id))
         return map_student(db_student)
 
