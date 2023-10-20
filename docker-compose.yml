@@ -1,10 +1,8 @@
 services:
   api_node_01:
     build: .
-    environment:
-      - MONGO_URI=mongodb://mongo_db:27017
-      - ELASTICSEARCH_URI=http://elasticsearch_db:9200
-      - MEMCACHED_URI=memcached_node_01:11211,memcached_node_02:11211,memcached_node_03:11211
+    env_file:
+      - docker.env
     depends_on:
       elasticsearch_db:
         condition: service_healthy
@@ -13,10 +11,8 @@ services:
 
   api_node_02:
     build: .
-    environment:
-      - MONGO_URI=mongodb://mongo_db:27017
-      - ELASTICSEARCH_URI=http://elasticsearch_db:9200
-      - MEMCACHED_URI=memcached_node_01:11211,memcached_node_02:11211,memcached_node_03:11211
+    env_file:
+      - docker.env
     depends_on:
       elasticsearch_db:
         condition: service_healthy
@@ -25,10 +21,8 @@ services:
 
   api_node_03:
     build: .
-    environment:
-      - MONGO_URI=mongodb://mongo_db:27017
-      - ELASTICSEARCH_URI=http://elasticsearch_db:9200
-      - MEMCACHED_URI=memcached_node_01:11211,memcached_node_02:11211,memcached_node_03:11211
+    env_file:
+      - docker.env
     depends_on:
       elasticsearch_db:
         condition: service_healthy
