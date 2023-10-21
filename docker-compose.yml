@@ -4,7 +4,11 @@ services:
     env_file:
       - docker.env
     depends_on:
-      elasticsearch_db:
+      elasticsearch_node_01:
+        condition: service_healthy
+      elasticsearch_node_02:
+        condition: service_healthy
+      elasticsearch_node_03:
         condition: service_healthy
       mongo_db:
         condition: service_started
@@ -14,7 +18,11 @@ services:
     env_file:
       - docker.env
     depends_on:
-      elasticsearch_db:
+      elasticsearch_node_01:
+        condition: service_healthy
+      elasticsearch_node_02:
+        condition: service_healthy
+      elasticsearch_node_03:
         condition: service_healthy
       mongo_db:
         condition: service_started
@@ -24,7 +32,11 @@ services:
     env_file:
       - docker.env
     depends_on:
-      elasticsearch_db:
+      elasticsearch_node_01:
+        condition: service_healthy
+      elasticsearch_node_02:
+        condition: service_healthy
+      elasticsearch_node_03:
         condition: service_healthy
       mongo_db:
         condition: service_started
@@ -34,7 +46,7 @@ services:
     volumes:
       - ./data/mongo:/data/db
 
-  elasticsearch_db:
+  elasticsearch_node_01:
     image: elasticsearch:8.10.2
     healthcheck:
       interval: 5s
@@ -43,8 +55,40 @@ services:
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
+      - cluster.name=es_cluster
+      - node.max_local_storage_nodes=3
     volumes:
-      - ./data/elasticsearch:/usr/share/elasticsearch/data
+      - ./data/elasticsearch_01:/usr/share/elasticsearch/data
+
+  elasticsearch_node_02:
+    image: elasticsearch:8.10.2
+    healthcheck:
+      interval: 5s
+      retries: 80
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_db:9200
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - cluster.name=es_cluster
+      - node.max_local_storage_nodes=3
+      - discovery.zen.ping.unicast.hosts=elasticsearch_node_01
+    volumes:
+      - ./data/elasticsearch_02:/usr/share/elasticsearch/data
+
+  elasticsearch_node_03:
+    image: elasticsearch:8.10.2
+    healthcheck:
+      interval: 5s
+      retries: 80
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_db:9200
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - cluster.name=es_cluster
+      - node.max_local_storage_nodes=3
+      - discovery.zen.ping.unicast.hosts=elasticsearch_node_01
+    volumes:
+      - ./data/elasticsearch_03:/usr/share/elasticsearch/data
 
   memcached_node_01:
     image: memcached
