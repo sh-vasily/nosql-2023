@@ -4,12 +4,6 @@ services:
     env_file:
       - docker.env
     depends_on:
-      elasticsearch_node_01:
-        condition: service_healthy
-      elasticsearch_node_02:
-        condition: service_healthy
-      elasticsearch_node_03:
-        condition: service_healthy
       mongo_db:
         condition: service_started
 
@@ -18,12 +12,6 @@ services:
     env_file:
       - docker.env
     depends_on:
-      elasticsearch_node_01:
-        condition: service_healthy
-      elasticsearch_node_02:
-        condition: service_healthy
-      elasticsearch_node_03:
-        condition: service_healthy
       mongo_db:
         condition: service_started
 
@@ -32,12 +20,6 @@ services:
     env_file:
       - docker.env
     depends_on:
-      elasticsearch_node_01:
-        condition: service_healthy
-      elasticsearch_node_02:
-        condition: service_healthy
-      elasticsearch_node_03:
-        condition: service_healthy
       mongo_db:
         condition: service_started
 
@@ -53,40 +35,39 @@ services:
       retries: 80
       test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_db:9200
     environment:
-      - xpack.security.enabled=false
-      - discovery.type=single-node
-      - cluster.name=es_cluster
-      - node.max_local_storage_nodes=3
+     - cluster.name=docker-cluster
+     - node.name=elasticsearch_node_01
+     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+     - discovery.seed_hosts=elasticsearch_node_02,elasticsearch_node_03
+     - cluster.initial_master_nodes=elasticsearch_node_01,elasticsearch_node_02,elasticsearch_node_03
+     - xpack.security.enabled=false
+     - http.cors.enabled=true
     volumes:
       - ./data/elasticsearch_01:/usr/share/elasticsearch/data
 
   elasticsearch_node_02:
     image: elasticsearch:8.10.2
-    healthcheck:
-      interval: 5s
-      retries: 80
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_db:9200
     environment:
-      - xpack.security.enabled=false
-      - discovery.type=single-node
-      - cluster.name=es_cluster
-      - node.max_local_storage_nodes=3
-      - discovery.zen.ping.unicast.hosts=elasticsearch_node_01
+     - cluster.name=docker-cluster
+     - node.name=elasticsearch_node_02
+     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+     - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_03
+     - cluster.initial_master_nodes=elasticsearch_node_01,elasticsearch_node_02,elasticsearch_node_03
+     - xpack.security.enabled=false
+     - http.cors.enabled=true
     volumes:
       - ./data/elasticsearch_02:/usr/share/elasticsearch/data
 
   elasticsearch_node_03:
     image: elasticsearch:8.10.2
-    healthcheck:
-      interval: 5s
-      retries: 80
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_db:9200
     environment:
-      - xpack.security.enabled=false
-      - discovery.type=single-node
-      - cluster.name=es_cluster
-      - node.max_local_storage_nodes=3
-      - discovery.zen.ping.unicast.hosts=elasticsearch_node_01
+     - cluster.name=docker-cluster
+     - node.name=elasticsearch_node_03
+     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+     - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_02
+     - cluster.initial_master_nodes=elasticsearch_node_01,elasticsearch_node_02,elasticsearch_node_03
+     - xpack.security.enabled=false
+     - http.cors.enabled=true
     volumes:
       - ./data/elasticsearch_03:/usr/share/elasticsearch/data
 
