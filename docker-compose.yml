@@ -10,7 +10,11 @@ services:
         condition: service_healthy
       elasticsearch_node_03:
         condition: service_healthy
-      mongo_db:
+      mongo_db_node_01:
+        condition: service_started
+      mongo_db_node_02:
+        condition: service_started
+      mongo_db_node_03:
         condition: service_started
 
   api_node_02:
@@ -24,7 +28,11 @@ services:
         condition: service_healthy
       elasticsearch_node_03:
         condition: service_healthy
-      mongo_db:
+      mongo_db_node_01:
+        condition: service_started
+      mongo_db_node_02:
+        condition: service_started
+      mongo_db_node_03:
         condition: service_started
 
   api_node_03:
@@ -38,13 +46,61 @@ services:
         condition: service_healthy
       elasticsearch_node_03:
         condition: service_healthy
-      mongo_db:
+      mongo_db_node_01:
+        condition: service_started
+      mongo_db_node_02:
+        condition: service_started
+      mongo_db_node_03:
         condition: service_started
 
-  mongo_db:
+  mongo_db_node_01:
     image: mongo:7.0.2
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo_db_node_01:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     volumes:
-      - ./data/mongo:/data/db
+      - ./data/mongo_node_01:/data/db
+    command: mongod --replSet docker-replicaset
+
+  mongo_db_node_02:
+    image: mongo:7.0.2
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo_db_node_02:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - ./data/mongo_node_02:/data/db
+    command: mongod --replSet docker-replicaset
+
+  mongo_db_node_03:
+    image: mongo:7.0.2
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo_db_node_03:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - ./data/mongo_node_03:/data/db
+    command: mongod --replSet docker-replicaset
+
+  mongo_cluster_init:
+    image: mongo:7.0.2
+    depends_on:
+      mongo_db_node_01:
+        condition: service_healthy
+      mongo_db_node_02:
+        condition: service_healthy
+      mongo_db_node_03:
+        condition: service_healthy
+    volumes:
+      - ./infrastructure/init-mongo.js:/scripts/init-mongo.js:ro
+    entrypoint: [ "mongosh", "--host", "mongo_db_node_01", "--file", "/scripts/init-mongo.js"]
 
   elasticsearch_node_01:
     image: elasticsearch:8.10.2
@@ -61,7 +117,7 @@ services:
      - xpack.security.enabled=false
      - http.cors.enabled=true
     volumes:
-      - ./data/elasticsearch_01:/usr/share/elasticsearch/data
+      - ./data/elasticsearch_node_01:/usr/share/elasticsearch/data
 
   elasticsearch_node_02:
     image: elasticsearch:8.10.2
@@ -78,7 +134,7 @@ services:
      - xpack.security.enabled=false
      - http.cors.enabled=true
     volumes:
-      - ./data/elasticsearch_02:/usr/share/elasticsearch/data
+      - ./data/elasticsearch_node_02:/usr/share/elasticsearch/data
 
   elasticsearch_node_03:
     image: elasticsearch:8.10.2
@@ -95,7 +151,7 @@ services:
      - xpack.security.enabled=false
      - http.cors.enabled=true
     volumes:
-      - ./data/elasticsearch_03:/usr/share/elasticsearch/data
+      - ./data/elasticsearch_node_03:/usr/share/elasticsearch/data
 
   memcached_node_01:
     image: memcached
