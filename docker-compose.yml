@@ -4,6 +4,12 @@ services:
     env_file:
       - docker.env
     depends_on:
+      elasticsearch_node_01:
+        condition: service_healthy
+      elasticsearch_node_02:
+        condition: service_healthy
+      elasticsearch_node_03:
+        condition: service_healthy
       mongo_db:
         condition: service_started
 
@@ -12,6 +18,12 @@ services:
     env_file:
       - docker.env
     depends_on:
+      elasticsearch_node_01:
+        condition: service_healthy
+      elasticsearch_node_02:
+        condition: service_healthy
+      elasticsearch_node_03:
+        condition: service_healthy
       mongo_db:
         condition: service_started
 
@@ -20,6 +32,12 @@ services:
     env_file:
       - docker.env
     depends_on:
+      elasticsearch_node_01:
+        condition: service_healthy
+      elasticsearch_node_02:
+        condition: service_healthy
+      elasticsearch_node_03:
+        condition: service_healthy
       mongo_db:
         condition: service_started
 
@@ -33,7 +51,7 @@ services:
     healthcheck:
       interval: 5s
       retries: 80
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_db:9200
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_node_01:9200
     environment:
      - cluster.name=docker-cluster
      - node.name=elasticsearch_node_01
@@ -47,6 +65,10 @@ services:
 
   elasticsearch_node_02:
     image: elasticsearch:8.10.2
+    healthcheck:
+      interval: 5s
+      retries: 80
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_node_02:9200
     environment:
      - cluster.name=docker-cluster
      - node.name=elasticsearch_node_02
@@ -60,6 +82,10 @@ services:
 
   elasticsearch_node_03:
     image: elasticsearch:8.10.2
+    healthcheck:
+      interval: 5s
+      retries: 80
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_node_03:9200
     environment:
      - cluster.name=docker-cluster
      - node.name=elasticsearch_node_03
