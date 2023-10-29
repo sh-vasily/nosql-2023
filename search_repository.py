@@ -25,6 +25,11 @@ class SearchStudentRepository:
         await self._elasticsearch_client.delete(index=self._elasticsearch_index, id=student_id)
 
     async def find_by_name(self, name: str):
+        index_exist = await self._elasticsearch_client.indices.exists(index=self._elasticsearch_index)
+
+        if not index_exist:
+            return []
+
         query = {
             "match": {
                 "name": {
