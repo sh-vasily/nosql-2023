@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
-from hooks import shutdown, startup
-from router import router
+from handler.event_handlers import startup, shutdown
+from router.students_router import router
 
 load_dotenv()
 

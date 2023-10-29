@@ -3,8 +3,8 @@ import os
 from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 
-from elasticsearch_utils import get_elasticsearch_client
-from student import Student, UpdateStudentModel
+from utils.elasticsearch_utils import get_elasticsearch_client
+from models.student import Student, UpdateStudentModel
 
 
 class SearchStudentRepository:
