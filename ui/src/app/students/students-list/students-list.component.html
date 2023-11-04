@@ -11,11 +11,13 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let student of students">
-      <ng-template [ngTemplateOutlet]="loadTemplate(student)"
-                   [ngTemplateOutletContext]="{ $implicit: student}">
-      </ng-template>
-    </tr>
+      @for(student of students; track student.id){
+        <tr>
+          <ng-template [ngTemplateOutlet]="loadTemplate(student)"
+                       [ngTemplateOutletContext]="{ $implicit: student}">
+          </ng-template>
+        </tr>
+      }
   </tbody>
 </table>
 <div>{{statusMessage}}</div>
@@ -33,18 +35,18 @@
 </ng-template>
 
 <ng-template #editTemplate>
-  <ng-container *ngIf="editedStudent">
+  @if(editedStudent){
     <td>
-      <input type="text" [(ngModel)]="editedStudent.name" class="form-control" />
-    </td>
-    <td>
-      <input type="number" [(ngModel)]="editedStudent.age" class="form-control" />
-    </td>
-    <td>
-      <input type="button" value="Сохранить" (click)="saveStudent()" class="btn btn-success" />
-    </td>
-    <td>
-      <input type="button" value="Отмена" (click)="cancel()" class="btn btn-warning" />
-    </td>
-  </ng-container>
+        <input type="text" [(ngModel)]="editedStudent.name" class="form-control" />
+      </td>
+      <td>
+        <input type="number" [(ngModel)]="editedStudent.age" class="form-control" />
+      </td>
+      <td>
+        <input type="button" value="Сохранить" (click)="saveStudent()" class="btn btn-success" />
+      </td>
+      <td>
+        <input type="button" value="Отмена" (click)="cancel()" class="btn btn-warning" />
+      </td>
+  }
 </ng-template>
