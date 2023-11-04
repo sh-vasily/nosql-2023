@@ -2,11 +2,20 @@ import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from "@angular/c
 import { StudentsApiClient } from "../students-api-client.service";
 import Student from "../student";
 import { Observable, Subject, takeUntil } from "rxjs";
+import { HttpClientModule } from "@angular/common/http";
+import { FormsModule } from "@angular/forms";
+import { CommonModule } from "@angular/common";
 
 @Component({
   selector: 'app-students-list',
   templateUrl: './students-list.component.html',
-  styleUrls: ['./students-list.component.css']
+  styleUrls: [],
+  standalone: true,
+  imports: [
+    CommonModule,
+    HttpClientModule,
+    FormsModule
+  ]
 })
 export class StudentsListComponent implements OnInit, OnDestroy {
 
