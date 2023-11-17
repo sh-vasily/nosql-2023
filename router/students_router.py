@@ -6,9 +6,9 @@ from pymemcache import HashClient
 from starlette.responses import Response
 
 from cache.memcached_utils import get_memcached_client
-from repository import Repository
-from search_repository import SearchStudentRepository
-from student import Student, UpdateStudentModel
+from repository.repository import Repository
+from repository.search_repository import SearchStudentRepository
+from models.student import Student, UpdateStudentModel
 
 router = APIRouter()
 

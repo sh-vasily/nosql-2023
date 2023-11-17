@@ -1,6 +1,10 @@
 import os
+from typing import Any
 
+from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
+
+from models.student import Student
 
 db_client: AsyncIOMotorClient = None
 
@@ -36,3 +40,14 @@ def close_mongo_connect():
     if db_client is None:
         return
     db_client.close()
+
+
+def get_filter(id: str) -> dict:
+    return {'_id': ObjectId(id)}
+
+
+def map_student(student: Any) -> Student | None:
+    if student is None:
+        return None
+
+    return Student(id=str(student['_id']), name=student['name'], age=student['age'])

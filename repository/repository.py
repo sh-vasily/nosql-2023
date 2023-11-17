@@ -1,9 +1,8 @@
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from db import get_db_collection
-from student import Student, UpdateStudentModel
-from utils import map_student, get_filter
+from utils.mongo_utils import get_db_collection, get_filter, map_student
+from models.student import Student, UpdateStudentModel
 
 
 class Repository:

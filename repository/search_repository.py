@@ -3,8 +3,8 @@ import os
 from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 
-from elasticsearch_utils import get_elasticsearch_client
-from student import Student, UpdateStudentModel
+from utils.elasticsearch_utils import get_elasticsearch_client
+from models.student import Student, UpdateStudentModel
 
 
 class SearchStudentRepository:
@@ -25,6 +25,11 @@ class SearchStudentRepository:
         await self._elasticsearch_client.delete(index=self._elasticsearch_index, id=student_id)
 
     async def find_by_name(self, name: str):
+        index_exist = await self._elasticsearch_client.indices.exists(index=self._elasticsearch_index)
+
+        if not index_exist:
+            return []
+
         query = {
             "match": {
                 "name": {
