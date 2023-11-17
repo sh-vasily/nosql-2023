@@ -1,57 +1,30 @@
+x-api-config: &api-config
+  build: .
+  env_file:
+    - docker.env
+  depends_on:
+    elasticsearch_node_01:
+      condition: service_healthy
+    elasticsearch_node_02:
+      condition: service_healthy
+    elasticsearch_node_03:
+      condition: service_healthy
+    mongo_db_node_01:
+      condition: service_started
+    mongo_db_node_02:
+      condition: service_started
+    mongo_db_node_03:
+      condition: service_started
+
 services:
   api_node_01:
-    build: .
-    env_file:
-      - docker.env
-    depends_on:
-      elasticsearch_node_01:
-        condition: service_healthy
-      elasticsearch_node_02:
-        condition: service_healthy
-      elasticsearch_node_03:
-        condition: service_healthy
-      mongo_db_node_01:
-        condition: service_started
-      mongo_db_node_02:
-        condition: service_started
-      mongo_db_node_03:
-        condition: service_started
+    <<: [ *api-config]
 
   api_node_02:
-    build: .
-    env_file:
-      - docker.env
-    depends_on:
-      elasticsearch_node_01:
-        condition: service_healthy
-      elasticsearch_node_02:
-        condition: service_healthy
-      elasticsearch_node_03:
-        condition: service_healthy
-      mongo_db_node_01:
-        condition: service_started
-      mongo_db_node_02:
-        condition: service_started
-      mongo_db_node_03:
-        condition: service_started
+    <<: [ *api-config ]
 
   api_node_03:
-    build: .
-    env_file:
-      - docker.env
-    depends_on:
-      elasticsearch_node_01:
-        condition: service_healthy
-      elasticsearch_node_02:
-        condition: service_healthy
-      elasticsearch_node_03:
-        condition: service_healthy
-      mongo_db_node_01:
-        condition: service_started
-      mongo_db_node_02:
-        condition: service_started
-      mongo_db_node_03:
-        condition: service_started
+    <<: [ *api-config ]
 
   mongo_db_node_01:
     image: mongo:7.0.2
@@ -109,13 +82,10 @@ services:
       retries: 80
       test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_node_01:9200
     environment:
-     - cluster.name=docker-cluster
-     - node.name=elasticsearch_node_01
-     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-     - discovery.seed_hosts=elasticsearch_node_02,elasticsearch_node_03
-     - cluster.initial_master_nodes=elasticsearch_node_01,elasticsearch_node_02,elasticsearch_node_03
-     - xpack.security.enabled=false
-     - http.cors.enabled=true
+      - node.name=elasticsearch_node_01
+      - discovery.seed_hosts=elasticsearch_node_02,elasticsearch_node_03
+    env_file:
+      - elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_01:/usr/share/elasticsearch/data
 
@@ -126,13 +96,10 @@ services:
       retries: 80
       test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_node_02:9200
     environment:
-     - cluster.name=docker-cluster
      - node.name=elasticsearch_node_02
-     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
      - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_03
-     - cluster.initial_master_nodes=elasticsearch_node_01,elasticsearch_node_02,elasticsearch_node_03
-     - xpack.security.enabled=false
-     - http.cors.enabled=true
+    env_file:
+      - elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_02:/usr/share/elasticsearch/data
 
@@ -143,13 +110,10 @@ services:
       retries: 80
       test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_node_03:9200
     environment:
-     - cluster.name=docker-cluster
      - node.name=elasticsearch_node_03
-     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
      - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_02
-     - cluster.initial_master_nodes=elasticsearch_node_01,elasticsearch_node_02,elasticsearch_node_03
-     - xpack.security.enabled=false
-     - http.cors.enabled=true
+    env_file:
+      - elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_03:/usr/share/elasticsearch/data
 
