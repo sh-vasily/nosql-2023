@@ -1,9 +1,8 @@
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from db import get_db_collection
-from student import Student, UpdateStudentModel
-from utils import map_student, get_filter
+from utils.mongo_utils import get_db_collection, get_filter, map_student
+from models.student import Student, UpdateStudentModel
 
 
 class Repository:
@@ -23,6 +22,7 @@ class Repository:
         return db_students
 
     async def get_by_id(self, student_id: str) -> Student | None:
+        print(f'Get student {student_id} from mongo')
         db_student = await self._db_collection.find_one(get_filter(student_id))
         return map_student(db_student)
 

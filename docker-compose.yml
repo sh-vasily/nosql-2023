@@ -1,53 +1,130 @@
+x-api-config: &api-config
+  build: .
+  env_file:
+    - docker.env
+  depends_on:
+    elasticsearch_node_01:
+      condition: service_healthy
+    elasticsearch_node_02:
+      condition: service_healthy
+    elasticsearch_node_03:
+      condition: service_healthy
+    mongo_db_node_01:
+      condition: service_started
+    mongo_db_node_02:
+      condition: service_started
+    mongo_db_node_03:
+      condition: service_started
+
 services:
   api_node_01:
-    build: .
-    environment:
-      - MONGO_URI=mongodb://mongo_db:27017
-      - ELASTICSEARCH_URI=http://elasticsearch_db:9200
-    depends_on:
-      elasticsearch_db:
-        condition: service_healthy
-      mongo_db:
-        condition: service_started
+    <<: [ *api-config]
 
   api_node_02:
-    build: .
-    environment:
-      - MONGO_URI=mongodb://mongo_db:27017
-      - ELASTICSEARCH_URI=http://elasticsearch_db:9200
-    depends_on:
-      elasticsearch_db:
-        condition: service_healthy
-      mongo_db:
-        condition: service_started
+    <<: [ *api-config ]
 
   api_node_03:
-    build: .
-    environment:
-      - MONGO_URI=mongodb://mongo_db:27017
-      - ELASTICSEARCH_URI=http://elasticsearch_db:9200
-    depends_on:
-      elasticsearch_db:
-        condition: service_healthy
-      mongo_db:
-        condition: service_started
+    <<: [ *api-config ]
 
-  mongo_db:
+  mongo_db_node_01:
     image: mongo:7.0.2
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo_db_node_01:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     volumes:
-      - ./data/mongo:/data/db
+      - ./data/mongo_node_01:/data/db
+    command: mongod --replSet docker-replicaset
 
-  elasticsearch_db:
+  mongo_db_node_02:
+    image: mongo:7.0.2
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo_db_node_02:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - ./data/mongo_node_02:/data/db
+    command: mongod --replSet docker-replicaset
+
+  mongo_db_node_03:
+    image: mongo:7.0.2
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo_db_node_03:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - ./data/mongo_node_03:/data/db
+    command: mongod --replSet docker-replicaset
+
+  mongo_cluster_init:
+    image: mongo:7.0.2
+    depends_on:
+      mongo_db_node_01:
+        condition: service_healthy
+      mongo_db_node_02:
+        condition: service_healthy
+      mongo_db_node_03:
+        condition: service_healthy
+    volumes:
+      - ./infrastructure/init-mongo.js:/scripts/init-mongo.js:ro
+    entrypoint: [ "mongosh", "--host", "mongo_db_node_01", "--file", "/scripts/init-mongo.js"]
+
+  elasticsearch_node_01:
     image: elasticsearch:8.10.2
     healthcheck:
       interval: 5s
       retries: 80
-      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_db:9200
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_node_01:9200
     environment:
-      - xpack.security.enabled=false
-      - discovery.type=single-node
+      - node.name=elasticsearch_node_01
+      - discovery.seed_hosts=elasticsearch_node_02,elasticsearch_node_03
+    env_file:
+      - elasticsearch.env
     volumes:
-      - ./data/elasticsearch:/usr/share/elasticsearch/data
+      - ./data/elasticsearch_node_01:/usr/share/elasticsearch/data
+
+  elasticsearch_node_02:
+    image: elasticsearch:8.10.2
+    healthcheck:
+      interval: 5s
+      retries: 80
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_node_02:9200
+    environment:
+     - node.name=elasticsearch_node_02
+     - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_03
+    env_file:
+      - elasticsearch.env
+    volumes:
+      - ./data/elasticsearch_node_02:/usr/share/elasticsearch/data
+
+  elasticsearch_node_03:
+    image: elasticsearch:8.10.2
+    healthcheck:
+      interval: 5s
+      retries: 80
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://elasticsearch_node_03:9200
+    environment:
+     - node.name=elasticsearch_node_03
+     - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_02
+    env_file:
+      - elasticsearch.env
+    volumes:
+      - ./data/elasticsearch_node_03:/usr/share/elasticsearch/data
+
+  memcached_node_01:
+    image: memcached
+
+  memcached_node_02:
+    image: memcached
+
+  memcached_node_03:
+    image: memcached
 
   nginx:
     build: ui
