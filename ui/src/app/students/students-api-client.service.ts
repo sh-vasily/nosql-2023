@@ -2,14 +2,13 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import Student from "./student";
-import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StudentsApiClient {
 
-  private basePath: string = environment.apiUrl;
+  private basePath: string = "/api/students";
 
   constructor(private httpClient: HttpClient) { }
 

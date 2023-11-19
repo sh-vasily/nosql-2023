@@ -1,7 +1,7 @@
 x-api-config: &api-config
-  build: .
+  build: rest-api/src
   env_file:
-    - docker.env
+    - infrastructure/docker.env
   depends_on:
     elasticsearch_node_01:
       condition: service_healthy
@@ -85,7 +85,7 @@ services:
       - node.name=elasticsearch_node_01
       - discovery.seed_hosts=elasticsearch_node_02,elasticsearch_node_03
     env_file:
-      - elasticsearch.env
+      - infrastructure/elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_01:/usr/share/elasticsearch/data
 
@@ -99,7 +99,7 @@ services:
      - node.name=elasticsearch_node_02
      - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_03
     env_file:
-      - elasticsearch.env
+      - infrastructure/elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_02:/usr/share/elasticsearch/data
 
@@ -113,7 +113,7 @@ services:
      - node.name=elasticsearch_node_03
      - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_02
     env_file:
-      - elasticsearch.env
+      - infrastructure/elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_03:/usr/share/elasticsearch/data
 
