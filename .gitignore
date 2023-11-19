@@ -1,3 +1,6 @@
-/nosql-2023
 /.idea
 data
+**/.vscode
+**/.angular
+**/node_modules
+docker-compose.dev.yml

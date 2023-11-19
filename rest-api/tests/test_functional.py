@@ -5,12 +5,10 @@ import uuid
 import requests
 
 from dotenv import load_dotenv
-from faker import Faker
 
 load_dotenv('tests.env')
 
 API_URL = os.getenv('API_URL')
-faker: Faker = Faker()
 
 
 def create_student(name=None, age=None):
@@ -26,7 +24,7 @@ def create_student(name=None, age=None):
 
 
 def test_student_creation():
-    name = faker.name()
+    name = str(uuid.uuid4())
     age = random.randint(17, 25)
     created_student_id = create_student(name, age)
     student_url = f'{API_URL}/{created_student_id}'
