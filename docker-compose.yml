@@ -38,7 +38,6 @@ x-memcached-healhcheck: &memcached-healhcheck
     interval: 10s
     retries: 60
 
-
 services:
   api_node_01:
     <<: [ *api-config]
@@ -136,3 +135,5 @@ services:
       - api_node_01
       - api_node_02
       - api_node_03
+    volumes:
+      - ./data/nginx/cache:/data/nginx/cache
