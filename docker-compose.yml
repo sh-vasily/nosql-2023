@@ -116,15 +116,15 @@ services:
       - ./data/elasticsearch_node_03:/usr/share/elasticsearch/data
 
   memcached_node_01:
-    image: memcached
+    image: memcached:alpine
     <<: [ *memcached-healhcheck ]
 
   memcached_node_02:
-    image: memcached
+    image: memcached:alpine
     <<: [ *memcached-healhcheck ]
 
   memcached_node_03:
-    image: memcached
+    image: memcached:alpine
     <<: [ *memcached-healhcheck ]
 
   nginx:
