@@ -1,5 +1,6 @@
 instance = new Mongo("mongo_db_node_01:27017");
 db = instance.getDB("api-db");
+
 config = {
     "_id": "docker-replicaset",
     "members": [
@@ -18,4 +19,9 @@ config = {
     ]
 };
 
-rs.initiate(config);
+try {
+    rs.conf()
+}
+catch {
+    rs.initiate(config);
+}
