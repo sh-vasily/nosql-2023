@@ -79,4 +79,4 @@ sysctl -w vm.max_map_count=262144
 ```
 
 ## Архитектура кластера
-![alt text](architecture.jpg "Architecture")
+![alt text](img/architecture.jpg "Architecture")
