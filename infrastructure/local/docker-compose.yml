@@ -1,23 +1,3 @@
-x-api-config: &api-config
-  build: rest-api/src
-  env_file:
-    - infrastructure/production/docker.env
-  depends_on:
-    mongo_cluster_init:
-      condition: service_completed_successfully
-    elasticsearch_node_01:
-      condition: service_healthy
-    elasticsearch_node_02:
-      condition: service_healthy
-    elasticsearch_node_03:
-      condition: service_healthy
-    memcached_node_01:
-      condition: service_healthy
-    memcached_node_02:
-      condition: service_healthy
-    memcached_node_03:
-      condition: service_healthy
-
 x-mongodb-healthcheck: &mongodb-healthcheck
   healthcheck:
     test: echo 'db.runCommand("ping").ok' | mongosh 127.0.0.1:27017/test --quiet
@@ -39,21 +19,14 @@ x-memcached-healthcheck: &memcached-healthcheck
     retries: 60
 
 services:
-  api_node_01:
-    <<: [ *api-config]
-
-  api_node_02:
-    <<: [ *api-config ]
-
-  api_node_03:
-    <<: [ *api-config ]
-
   mongo_db_node_01:
     image: mongo:7.0.2
     <<: [ *mongodb-healthcheck ]
     volumes:
       - ./data/mongo_node_01:/data/db
     command: mongod --replSet docker-replicaset
+    ports:
+      - 27017:27017
 
   mongo_db_node_02:
     image: mongo:7.0.2
@@ -61,6 +34,8 @@ services:
     volumes:
       - ./data/mongo_node_02:/data/db
     command: mongod --replSet docker-replicaset
+    ports:
+      - 27018:27017
 
   mongo_db_node_03:
     image: mongo:7.0.2
@@ -68,6 +43,8 @@ services:
     volumes:
       - ./data/mongo_node_03:/data/db
     command: mongod --replSet docker-replicaset
+    ports:
+      - 27019:27017
 
   mongo_cluster_init:
     image: mongo:7.0.2
@@ -79,8 +56,8 @@ services:
       mongo_db_node_03:
         condition: service_healthy
     volumes:
-      - ./infrastructure/production/init-mongo.js:/scripts/init-mongo.js:ro
-    entrypoint: [ "mongosh", "--host", "mongo_db_node_01", "--file", "/scripts/init-mongo.js"]
+      - ./init-mongo.js:/scripts/init-mongo.js:ro
+    entrypoint: [ "mongosh", "--host", "host.docker.internal", "--port", "27017", "--file", "/scripts/init-mongo.js"]
 
   elasticsearch_node_01:
     image: elasticsearch:8.10.2
@@ -89,51 +66,52 @@ services:
       - node.name=elasticsearch_node_01
       - discovery.seed_hosts=elasticsearch_node_02,elasticsearch_node_03
     env_file:
-      - infrastructure/production/elasticsearch.env
+      - elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
 
   elasticsearch_node_02:
     image: elasticsearch:8.10.2
     <<: [ *elasticsearch-healthcheck ]
     environment:
-     - node.name=elasticsearch_node_02
-     - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_03
+      - node.name=elasticsearch_node_02
+      - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_03
     env_file:
-      - infrastructure/production/elasticsearch.env
+      - elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_02:/usr/share/elasticsearch/data
+    ports:
+      - 9201:9200
 
   elasticsearch_node_03:
     image: elasticsearch:8.10.2
     <<: [ *elasticsearch-healthcheck ]
     environment:
-     - node.name=elasticsearch_node_03
-     - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_02
+      - node.name=elasticsearch_node_03
+      - discovery.seed_hosts=elasticsearch_node_01,elasticsearch_node_02
     env_file:
-      - infrastructure/production/elasticsearch.env
+      - elasticsearch.env
     volumes:
       - ./data/elasticsearch_node_03:/usr/share/elasticsearch/data
+    ports:
+      - 9202:9200
 
   memcached_node_01:
     image: memcached:alpine
     <<: [ *memcached-healthcheck ]
+    ports:
+      - 11211:11211
 
   memcached_node_02:
     image: memcached:alpine
     <<: [ *memcached-healthcheck ]
+    ports:
+      - 11212:11211
 
   memcached_node_03:
     image: memcached:alpine
     <<: [ *memcached-healthcheck ]
-
-  nginx:
-    build: ui
     ports:
-      - 80:80
-    depends_on:
-      - api_node_01
-      - api_node_02
-      - api_node_03
-    volumes:
-      - ./data/nginx/cache:/data/nginx/cache
+      - 11213:11211

@@ -54,7 +54,7 @@ npm i
 npm start
 ```
 
-## Запуск кластера в docker
+## Запуск кластера в docker(production версия)
 Системные требования:
 - Запущенный демон docker на машине
 - Желательно большое количество оперативной памяти(>16gb)
@@ -64,6 +64,16 @@ npm start
 docker compose up --build -d
 ```
 
+## Запуск кластера в docker(версия для отладки)
+Отличия от production версии:
+- У каждого контейнера порты проброшены на хост-машину.
+- Сетевое взаимодейтсвие контейнеров происходит в хост-машине за счет использования специального dns имени - [host.docker.internal](1).
+- Запускается только инфраструктурная часть(mongodb, elasticsearch, memcached).
+
+Запуск:
+```
+docker compose -f ./infrastructure/local/docker-compose.yml up -d
+```
 
 Trobleshooting:
 
@@ -80,3 +90,5 @@ sysctl -w vm.max_map_count=262144
 
 ## Архитектура кластера
 ![alt text](img/architecture.jpg "Architecture")
+
+[1]: https://docs.docker.com/desktop/networking/#use-cases-and-workarounds-for-all-platforms
